@@ -1,9 +1,9 @@
 ---
 title: grocery-app — Project Log
 created: 2026-06-02
-updated: 2026-06-02
+updated: 2026-06-10
 status: in-progress
-phase: 3 of 8
+phase: 4 of 8
 tags:
   - project/grocery-app
   - nextjs
@@ -26,7 +26,7 @@ tags:
 | | |
 |---|---|
 | **Project folder** | `C:\Users\owenk\grocery-app` (its own git repo, branch `main`) |
-| **Current phase** | Phase 3 (data layer) — Phase 2 applied ✅, adapters next |
+| **Current phase** | Phase 4 (search UI) — Phase 3 ingestion verified end-to-end ✅ 2026-06-10 |
 | **Live data yet?** | No — runs on mock/seed data by design until a real source is connected |
 | **Accounts created** | Supabase project **"Grocery Website"** |
 | **Accounts still needed** | Google Cloud (OAuth, Phase 5), Stripe (Phase 6) |
@@ -81,7 +81,7 @@ Core user flow:
 
 - [x] **Phase 1 — Scaffold**: Next.js + TS + Tailwind + Supabase client + env + README.
 - [x] **Phase 2 — Database**: schema + migrations + Row-Level Security. *(applied to Supabase 2026-06-02)*
-- [/] **Phase 3 — Data layer**: `DataSourceAdapter` interface + 4 example adapters + registry + ingestion job + seed via CSV adapter. *(code written; fixing a TS typing issue, then run it)*
+- [x] **Phase 3 — Data layer**: `DataSourceAdapter` interface + 4 example adapters + registry + ingestion job + seed via CSV adapter. *(verified end-to-end 2026-06-10)*
 - [ ] **Phase 4 — Search UI**: location + item search, cheapest-first results; grocery-list mode (cheapest per item, single-store basket, estimated total).
 - [ ] **Phase 5 — Auth**: email/password + Google OAuth, profiles, saved lists, RLS.
 - [ ] **Phase 6 — Payments**: Stripe subscription, free-tier gating, webhooks.
@@ -151,9 +151,9 @@ All three SQL files are **safe to re-run** (idempotent).
 
 ---
 
-## Phase 3 — Data layer 🚧 (in progress — paused mid-build)
+## Phase 3 — Data layer ✅ (done 2026-06-10)
 
-**The pluggable adapter architecture — the heart of the app.** All the code is written; we paused while fixing a TypeScript typing error before the first real run.
+**The pluggable adapter architecture — the heart of the app.** All code written, the TypeScript blocker fixed, and ingestion verified end-to-end against the live Supabase database.
 
 **Files created this phase:**
 - `src/lib/supabase/admin.ts` — server-only admin client (uses `SUPABASE_SECRET_KEY`, bypasses RLS). **Never import from browser code.**
@@ -172,14 +172,9 @@ All three SQL files are **safe to re-run** (idempotent).
 
 **Env added this phase:** `INGEST_SECRET` (in `.env.example` + `.env.local`). `SUPABASE_SECRET_KEY` is now set in `.env.local`. ✅
 
-> [!bug] RESUME HERE — the one open blocker
-> `npx tsc --noEmit` fails in `src/lib/data-sources/ingest.ts` with `Property … does not exist on type 'never'` on every `supabase.from(...)` call (lines ~91, 111, 170, 179, 191, 205–206, 218).
-> **Diagnosis in progress:** the `Database` generic isn't threading through the admin client's typed queries, so `.from()` resolves to `never`. The existing browser/server clients use the same `createXClient<Database>` pattern but were never exercised with typed `.from()` queries, so this is the first time it surfaced. Was mid-investigation of the supabase-js v2.107 / postgrest-js `GenericSchema` expected shape in `node_modules/@supabase/postgrest-js/dist/` when we paused.
-> **Next steps when resuming:**
-> 1. Fix the typing so `ingest.ts` typechecks (likely a tweak to how `src/types/database.ts` is shaped vs. what supabase-js v2.107 expects, or how `admin.ts` types its client). Confirm with `npx tsc --noEmit`.
-> 2. In Supabase SQL Editor, run `supabase/seed_phase3_csv_source.sql` (one new file).
-> 3. Start the app (`npm run dev`) and trigger ingestion: `POST http://localhost:3000/api/ingest?secret=<INGEST_SECRET>` (the secret is in `.env.local`).
-> 4. Verify in Supabase Table Editor: `products` gains Sourdough/Orange Juice/Old Cheddar; `prices` gains rows for both branches. Then mark Phase 3 ✅.
+> [!success] Blocker resolved + first ingestion run verified (2026-06-10)
+> **The TS bug:** the row shapes in `src/types/database.ts` were declared as `interface`s. TypeScript interfaces don't get an implicit index signature, so they aren't assignable to supabase-js's `Record<string, unknown>` constraint — the whole `Database` schema silently failed its `GenericSchema` check and every `.from()` query collapsed to `never`. **Fix:** declare row shapes as `type` aliases instead (this is also why Supabase's auto-generated types use `type`). A warning comment now sits at the top of the row-shapes section.
+> **First run results** (`POST /api/ingest`): the CSV source imported successfully — **3 products created** (Sourdough Bread, Orange Juice, Old Cheddar Cheese), **6 prices upserted** across both branches (No Frills Queen St W + FreshCo College St), source `last_status = "ok"`. The two `manual_entry` sources correctly ran as no-ops. The CSV data-source row was registered via the Supabase REST API (same upsert as `seed_phase3_csv_source.sql`, so no SQL Editor step was needed).
 
 ---
 
@@ -191,7 +186,7 @@ Full commented list is in `.env.example`. Local secrets go in `.env.local` (giti
 |---|---|---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | 2 | Supabase project URL | ✅ set |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | 2 | Public, browser-safe key | ✅ set |
-| `SUPABASE_SECRET_KEY` | 3 | Server-only admin key (`sb_secret_…`) | ⬜ needed for Phase 3 |
+| `SUPABASE_SECRET_KEY` | 3 | Server-only admin key (`sb_secret_…`) | ✅ set |
 | `STRIPE_SECRET_KEY` / `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | 6 | Stripe keys (test mode first) | ⬜ later |
 | `STRIPE_PRICE_ID_MONTHLY` | 6 | The $5.99 CAD/month price | ⬜ later |
 | `STRIPE_WEBHOOK_SECRET` | 6 | Verifies Stripe webhooks | ⬜ later |
@@ -237,9 +232,10 @@ Other commands: `npm run build` (production build), `npm run lint`.
 ## Open items / next steps
 
 - [x] **Apply the 3 Phase 2 SQL files** in Supabase. *(done 2026-06-02 — all 3 succeeded)*
-- [ ] Decide whether to **make the first git commit** (repo is initialized + staged but not yet committed).
-- [ ] **Grab the Supabase `secret` key** (`sb_secret_…`) and add it to `.env.local` — required to start **Phase 3** (data ingestion).
-- [ ] Then build **Phase 3**: adapter interface + 4 example adapters + registry + ingestion job.
+- [x] **First git commit + GitHub push** — repo lives at `https://github.com/OwenKacz/Grocery-App`. *(done 2026-06-02)*
+- [x] **Supabase `secret` key** added to `.env.local`. *(done)*
+- [x] **Phase 3 built and verified**: adapters + registry + ingestion job ran end-to-end. *(done 2026-06-10)*
+- [ ] Start **Phase 4 — Search UI**: location + item search, cheapest-first results, grocery-list mode.
 
 > [!note] Accounts to create later (not yet)
 > - **Google Cloud** account for "Sign in with Google" (Phase 5).

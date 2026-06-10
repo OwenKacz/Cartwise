@@ -39,11 +39,14 @@ export type AdapterType =
   | "csv_flyer_import"
   | "manual_entry";
 
-// --- Row shapes (one interface per table) ------------------------------------
+// --- Row shapes (one type per table) ------------------------------------------
+// NOTE: these must be `type` aliases, NOT `interface`s. Interfaces don't get an
+// implicit index signature, so they fail supabase-js's `Record<string, unknown>`
+// constraint and every `.from()` query collapses to `never`.
 // `string` is used for timestamptz/uuid columns (Supabase returns them as ISO
 // strings). `number` is used for numeric/double columns.
 
-export interface Profile {
+export type Profile = {
   id: string;
   display_name: string | null;
   home_postal_code: string | null;
@@ -58,7 +61,7 @@ export interface Profile {
   updated_at: string;
 }
 
-export interface Store {
+export type Store = {
   id: string;
   name: string;
   slug: string;
@@ -68,7 +71,7 @@ export interface Store {
   updated_at: string;
 }
 
-export interface StoreBranch {
+export type StoreBranch = {
   id: string;
   store_id: string;
   name: string | null;
@@ -83,7 +86,7 @@ export interface StoreBranch {
   updated_at: string;
 }
 
-export interface DataSource {
+export type DataSource = {
   id: string;
   store_id: string;
   adapter_type: AdapterType;
@@ -97,7 +100,7 @@ export interface DataSource {
   updated_at: string;
 }
 
-export interface Product {
+export type Product = {
   id: string;
   name: string;
   brand: string | null;
@@ -109,7 +112,7 @@ export interface Product {
   updated_at: string;
 }
 
-export interface Price {
+export type Price = {
   id: string;
   product_id: string;
   branch_id: string;
@@ -125,7 +128,7 @@ export interface Price {
   created_at: string;
 }
 
-export interface GroceryList {
+export type GroceryList = {
   id: string;
   user_id: string;
   name: string;
@@ -133,7 +136,7 @@ export interface GroceryList {
   updated_at: string;
 }
 
-export interface GroceryListItem {
+export type GroceryListItem = {
   id: string;
   list_id: string;
   raw_text: string;
@@ -142,7 +145,7 @@ export interface GroceryListItem {
   created_at: string;
 }
 
-export interface SearchLog {
+export type SearchLog = {
   id: string;
   user_id: string | null;
   query: string;
