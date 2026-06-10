@@ -13,7 +13,7 @@ export default function Home() {
     { n: 2, label: "Database schema + migrations (Supabase)", done: true },
     { n: 3, label: "Data source adapters + ingestion job", done: true },
     { n: 4, label: "Search + results UI, grocery-list mode", done: true },
-    { n: 5, label: "Auth, profiles, saved lists", done: false },
+    { n: 5, label: "Auth, profiles, saved lists", done: true },
     { n: 6, label: "Stripe subscriptions + free-tier gating", done: false },
     { n: 7, label: "Admin panel", done: false },
     { n: 8, label: "Polish, error states, deploy", done: false },
@@ -23,7 +23,7 @@ export default function Home() {
     <main className="mx-auto flex min-h-screen w-full max-w-2xl flex-col justify-center gap-8 px-6 py-16">
       <header className="flex flex-col gap-3">
         <span className="inline-flex w-fit items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
-          Phase 4 · Search is live
+          Phase 5 · Accounts are live
         </span>
         <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-4xl">
           grocery-app

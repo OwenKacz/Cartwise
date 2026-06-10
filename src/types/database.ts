@@ -220,7 +220,9 @@ export interface Database {
       };
       grocery_list_items: {
         Row: GroceryListItem;
-        Insert: Insertable<GroceryListItem, "id" | "created_at" | "quantity">;
+        // product_id is optional on insert: it's nullable (an unmatched line of
+        // text is fine) and only filled in when we link the line to a product.
+        Insert: Insertable<GroceryListItem, "id" | "created_at" | "quantity" | "product_id">;
         Update: Partial<GroceryListItem>;
         Relationships: [];
       };

@@ -3,7 +3,7 @@ title: grocery-app — Project Log
 created: 2026-06-02
 updated: 2026-06-10
 status: in-progress
-phase: 4 of 8
+phase: 6 of 8
 tags:
   - project/grocery-app
   - nextjs
@@ -26,7 +26,7 @@ tags:
 | | |
 |---|---|
 | **Project folder** | `C:\Users\owenk\grocery-app` (its own git repo, branch `main`) |
-| **Current phase** | Phase 4 (search UI) built & smoke-tested 2026-06-10 — awaiting user sign-off, then Phase 5 (auth) |
+| **Current phase** | Phase 5 (auth) built & browser-tested 2026-06-10 — awaiting sign-off, then Phase 6 (Stripe) |
 | **Live data yet?** | No — runs on mock/seed data by design until a real source is connected |
 | **Accounts created** | Supabase project **"Grocery Website"** |
 | **Accounts still needed** | Google Cloud (OAuth, Phase 5), Stripe (Phase 6) |
@@ -82,8 +82,8 @@ Core user flow:
 - [x] **Phase 1 — Scaffold**: Next.js + TS + Tailwind + Supabase client + env + README.
 - [x] **Phase 2 — Database**: schema + migrations + Row-Level Security. *(applied to Supabase 2026-06-02)*
 - [x] **Phase 3 — Data layer**: `DataSourceAdapter` interface + 4 example adapters + registry + ingestion job + seed via CSV adapter. *(verified end-to-end 2026-06-10)*
-- [/] **Phase 4 — Search UI**: location + item search, cheapest-first results; grocery-list mode (cheapest per item, single-store basket, estimated total). *(built + smoke-tested 2026-06-10; awaiting sign-off)*
-- [ ] **Phase 5 — Auth**: email/password + Google OAuth, profiles, saved lists, RLS.
+- [x] **Phase 4 — Search UI**: location + item search, cheapest-first results; grocery-list mode (cheapest per item, single-store basket, estimated total). *(signed off 2026-06-10)*
+- [/] **Phase 5 — Auth**: email/password, profiles, saved lists, RLS. *(built + browser-tested 2026-06-10; Google OAuth deferred until a Google Cloud account exists; awaiting sign-off)*
 - [ ] **Phase 6 — Payments**: Stripe subscription, free-tier gating, webhooks.
 - [ ] **Phase 7 — Admin panel**: manage data sources, trigger refreshes, view stats.
 - [ ] **Phase 8 — Polish**: error/empty states, README finalization, deploy.
@@ -195,6 +195,32 @@ All three SQL files are **safe to re-run** (idempotent).
 
 > [!todo] To try it yourself
 > `npm run dev`, then open `http://localhost:3000` → "Search an item". Try `milk` near `M5T 1T3`, and the list `milk, eggs, bananas, sourdough`. Sign off → Phase 5 (auth).
+
+---
+
+## Phase 5 — Auth, profiles & saved lists 🚧 (built 2026-06-10 — awaiting sign-off)
+
+**Accounts are live.** Email/password auth through Supabase, all server-rendered (forms post to server actions; passwords never touch client code). **Google OAuth deferred** until a Google Cloud account exists — the `/auth/callback` route is already built to handle it when we flip it on.
+
+**Files created this phase:**
+- `src/proxy.ts` + `src/lib/supabase/proxy.ts` — Next 16's proxy (ex-middleware) running the standard @supabase/ssr **session refresh** on every request. Without this, logins silently expire after ~1 hour (Server Components can't write cookies; the proxy can).
+- `src/app/auth/callback/route.ts` — exchanges Supabase's one-time `?code=` for a session. Handles email-confirmation links today, Google OAuth later.
+- `src/lib/auth/user.ts` — `getCurrentUser()` / `getCurrentProfile()` server helpers.
+- `src/lib/auth/actions.ts` — server actions: `signUp` (with email-confirm redirect handling), `signIn`, `signOut`, `updateProfile`. Errors travel back as `?error=` query params — zero client JS.
+- `src/lib/lists/actions.ts` — `saveList` (one `grocery_lists` row + one `grocery_list_items` row per line) and `deleteList` (items cascade). RLS scopes everything to the owner.
+- `src/app/login/page.tsx` — log in / create account (`?mode=signup` flips it).
+- `src/app/account/page.tsx` — profile: display name + **home postal code** (becomes the default search location), plan badge (Stripe takes over in Phase 6), log out. Redirects to /login when signed out.
+- `src/app/lists/page.tsx` — saved lists with **"Price it"** (re-opens /list with items pre-filled) and Delete.
+- `src/components/SiteHeader.tsx` (wired into `layout.tsx`) — site-wide nav; shows Log in vs. My lists/Account based on the real session.
+- `/list` page now has **"Save this list as…"** when logged in; `/search` + `/list` default the location to the profile's home postal code.
+- `database.ts`: `grocery_list_items.product_id` made optional on insert (nullable column — unmatched text lines are fine).
+
+**Browser-tested end-to-end (real clicks via the preview browser, 2026-06-10):** log in → redirected to /account with header flipped ✓ · profile save persists ✓ · /list with blank location used the saved postal code (Trinity-Bellwoods) ✓ · "Save this list" → /lists shows "Weekly staples · 4 items" ✓ · log out → header shows Log in, /account + /lists redirect to /login ✓. Test user deleted afterwards (cascade cleaned profile + lists).
+
+> [!todo] To try it yourself
+> Sign up at `/login?mode=signup` with your real email (Supabase will email a confirmation link — click it). Set your home postal code on /account, then save a list from /list. Sign off → Phase 6 (Stripe).
+>
+> **Supabase setting to know:** if the confirmation email feels like friction during dev, you can turn off **Authentication → Sign In / Up → Email → Confirm email** in the dashboard — then sign-ups log straight in.
 
 ---
 

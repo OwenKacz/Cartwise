@@ -11,6 +11,8 @@
 import type { Metadata } from "next";
 
 import { searchList } from "@/lib/search";
+import { saveList } from "@/lib/lists/actions";
+import { getCurrentProfile, getCurrentUser } from "@/lib/auth/user";
 import { formatDistance } from "@/lib/geo";
 import { formatMoney } from "@/components/format";
 import { LocationFields } from "@/components/LocationFields";
@@ -25,13 +27,27 @@ export const dynamic = "force-dynamic";
 export default async function ListPage({
   searchParams,
 }: {
-  searchParams: Promise<{ items?: string; loc?: string; radius?: string }>;
+  searchParams: Promise<{
+    items?: string;
+    loc?: string;
+    radius?: string;
+    error?: string;
+  }>;
 }) {
   // Next.js 16: searchParams must be awaited.
   const params = await searchParams;
   const rawList = (params.items ?? "").trim();
-  const locationText = (params.loc ?? "").trim();
   const radiusKm = Number(params.radius) || 10;
+
+  const user = await getCurrentUser();
+
+  // No location typed? Fall back to the logged-in user's home postal code
+  // (set on /account). Anonymous users just get the geocoder's default.
+  let locationText = (params.loc ?? "").trim();
+  if (!locationText && user) {
+    const profile = await getCurrentProfile();
+    locationText = profile?.home_postal_code ?? "";
+  }
 
   const result = rawList
     ? await searchList(rawList, locationText, radiusKm)
@@ -50,6 +66,12 @@ export default async function ListPage({
         </h1>
         <ModeTabs active="list" />
       </header>
+
+      {params.error && (
+        <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-800 dark:bg-rose-950 dark:text-rose-300">
+          {params.error}
+        </p>
+      )}
 
       {/* The list form */}
       <form action="/list" method="get" className="flex flex-col gap-3">
@@ -131,6 +153,41 @@ export default async function ListPage({
                 </strong>
               </p>
             </section>
+          )}
+
+          {/* Save this list (logged in) / nudge to log in (logged out) */}
+          {user ? (
+            <form
+              action={saveList}
+              className="flex items-end gap-3 rounded-lg border border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900"
+            >
+              {/* The list travels along as a hidden field. */}
+              <input type="hidden" name="items" value={rawList} />
+              <label className="flex min-w-0 flex-1 flex-col gap-1">
+                <span className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+                  Save this list as
+                </span>
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="e.g. Weekly staples"
+                  className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-emerald-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                />
+              </label>
+              <button
+                type="submit"
+                className="shrink-0 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
+              >
+                Save
+              </button>
+            </form>
+          ) : (
+            <p className="rounded-lg border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
+              <a href="/login" className="font-medium text-emerald-700 hover:underline dark:text-emerald-400">
+                Log in
+              </a>{" "}
+              to save this list for next week.
+            </p>
           )}
 
           {/* 2. Item-by-item breakdown */}

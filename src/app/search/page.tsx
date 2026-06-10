@@ -11,6 +11,7 @@
 import type { Metadata } from "next";
 
 import { searchItem } from "@/lib/search";
+import { getCurrentProfile } from "@/lib/auth/user";
 import { LocationFields } from "@/components/LocationFields";
 import { ModeTabs } from "@/components/ModeTabs";
 import { PriceHitCard } from "@/components/PriceHitCard";
@@ -28,8 +29,15 @@ export default async function SearchPage({
   // Next.js 16: searchParams must be awaited.
   const params = await searchParams;
   const query = (params.q ?? "").trim();
-  const locationText = (params.loc ?? "").trim();
   const radiusKm = Number(params.radius) || 10;
+
+  // No location typed? Fall back to the logged-in user's home postal code
+  // (set on /account). Anonymous users just get the geocoder's default.
+  let locationText = (params.loc ?? "").trim();
+  if (!locationText) {
+    const profile = await getCurrentProfile();
+    locationText = profile?.home_postal_code ?? "";
+  }
 
   // Only run a search once the user has actually submitted something.
   const result = query
