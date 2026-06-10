@@ -26,7 +26,7 @@ tags:
 | | |
 |---|---|
 | **Project folder** | `C:\Users\owenk\grocery-app` (its own git repo, branch `main`) |
-| **Current phase** | Phase 4 (search UI) — Phase 3 ingestion verified end-to-end ✅ 2026-06-10 |
+| **Current phase** | Phase 4 (search UI) built & smoke-tested 2026-06-10 — awaiting user sign-off, then Phase 5 (auth) |
 | **Live data yet?** | No — runs on mock/seed data by design until a real source is connected |
 | **Accounts created** | Supabase project **"Grocery Website"** |
 | **Accounts still needed** | Google Cloud (OAuth, Phase 5), Stripe (Phase 6) |
@@ -82,7 +82,7 @@ Core user flow:
 - [x] **Phase 1 — Scaffold**: Next.js + TS + Tailwind + Supabase client + env + README.
 - [x] **Phase 2 — Database**: schema + migrations + Row-Level Security. *(applied to Supabase 2026-06-02)*
 - [x] **Phase 3 — Data layer**: `DataSourceAdapter` interface + 4 example adapters + registry + ingestion job + seed via CSV adapter. *(verified end-to-end 2026-06-10)*
-- [ ] **Phase 4 — Search UI**: location + item search, cheapest-first results; grocery-list mode (cheapest per item, single-store basket, estimated total).
+- [/] **Phase 4 — Search UI**: location + item search, cheapest-first results; grocery-list mode (cheapest per item, single-store basket, estimated total). *(built + smoke-tested 2026-06-10; awaiting sign-off)*
 - [ ] **Phase 5 — Auth**: email/password + Google OAuth, profiles, saved lists, RLS.
 - [ ] **Phase 6 — Payments**: Stripe subscription, free-tier gating, webhooks.
 - [ ] **Phase 7 — Admin panel**: manage data sources, trigger refreshes, view stats.
@@ -175,6 +175,26 @@ All three SQL files are **safe to re-run** (idempotent).
 > [!success] Blocker resolved + first ingestion run verified (2026-06-10)
 > **The TS bug:** the row shapes in `src/types/database.ts` were declared as `interface`s. TypeScript interfaces don't get an implicit index signature, so they aren't assignable to supabase-js's `Record<string, unknown>` constraint — the whole `Database` schema silently failed its `GenericSchema` check and every `.from()` query collapsed to `never`. **Fix:** declare row shapes as `type` aliases instead (this is also why Supabase's auto-generated types use `type`). A warning comment now sits at the top of the row-shapes section.
 > **First run results** (`POST /api/ingest`): the CSV source imported successfully — **3 products created** (Sourdough Bread, Orange Juice, Old Cheddar Cheese), **6 prices upserted** across both branches (No Frills Queen St W + FreshCo College St), source `last_status = "ok"`. The two `manual_entry` sources correctly ran as no-ops. The CSV data-source row was registered via the Supabase REST API (same upsert as `seed_phase3_csv_source.sql`, so no SQL Editor step was needed).
+
+---
+
+## Phase 4 — Search UI 🚧 (built 2026-06-10 — awaiting sign-off)
+
+**The user-facing search experience.** Two pages, both Server Components with plain GET forms — zero client-side JavaScript, so every search is a shareable URL and the back button just works.
+
+**Files created this phase:**
+- `src/lib/geocoder.ts` — pluggable geocoding (same philosophy as the data adapters). `geocode(text)` is the one entry point; the provider is picked by `GEOCODER_PROVIDER`. The default **mock** maps postal-code prefixes (FSAs — M5T, M6J, K1A, …) to coordinates and accepts raw `"lat,lng"` too; unknown input falls back to downtown Toronto flagged `approximate`. Google/Mapbox get added later as new cases in one switch.
+- `src/lib/geo.ts` — haversine `distanceKm()` + `formatDistance()`. Straight-line distance; no library needed.
+- `src/lib/search.ts` — the search engine. `searchItem()` and `searchList()` both share `findHits()`: ① products matching name/brand/category (`ilike`), ② their in-stock prices, ③ the branches + stores, ④ stitched in plain TS → distance-filtered → sorted by `effectivePrice` (sale ?? regular), ties broken by distance. Four flat queries, no SQL joins — easiest to read and sidesteps typed-embed complexity. List mode adds **per-store baskets** (cheapest in-store price per item, sorted most-complete-then-cheapest) and the **mix-and-match floor** (sum of each item's overall cheapest).
+- `src/app/search/page.tsx` — single-item search: item + postal code + radius → cheapest-first cards, "Cheapest" badge on the winner, sale strikethroughs, unit prices, "updated X days ago", accuracy disclaimer.
+- `src/app/list/page.tsx` — grocery-list mode: textarea (newlines or commas) → Best single store ranking, mix-and-match total, item-by-item top-3 breakdown.
+- `src/components/` — `PriceHitCard.tsx`, `LocationFields.tsx`, `ModeTabs.tsx`, `format.ts` (money/unit/updated-ago formatters).
+- `src/app/page.tsx` — homepage now funnels to /search and /list; progress list updated.
+
+**Smoke-tested against live data:** `?q=milk` → FreshCo $3.99 beats No Frills $4.49-on-sale ✓; 4-item list → FreshCo basket $12.36 beats No Frills $12.66, mix-and-match floor $11.96 ✓ (totals hand-checked against seed + CSV data).
+
+> [!todo] To try it yourself
+> `npm run dev`, then open `http://localhost:3000` → "Search an item". Try `milk` near `M5T 1T3`, and the list `milk, eggs, bananas, sourdough`. Sign off → Phase 5 (auth).
 
 ---
 

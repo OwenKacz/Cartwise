@@ -1,18 +1,18 @@
+import Link from "next/link";
+
 import { publicEnv } from "@/lib/env";
 
 /**
- * Temporary landing page for Phase 1 (scaffold).
- *
- * The real marketing/landing page and the search experience are built in later
- * phases. This placeholder just confirms the app runs and shows the planned
- * build phases.
+ * Landing page. Now that Phase 4 exists, its main job is to funnel people into
+ * the search experience; the build-progress list stays (handy during the build)
+ * and gets replaced with real marketing content in Phase 8 (polish).
  */
 export default function Home() {
   const phases = [
     { n: 1, label: "Scaffold (Next.js + Tailwind + Supabase client + env)", done: true },
-    { n: 2, label: "Database schema + migrations (Supabase)", done: false },
-    { n: 3, label: "Data source adapters + ingestion job", done: false },
-    { n: 4, label: "Search + results UI, grocery-list mode", done: false },
+    { n: 2, label: "Database schema + migrations (Supabase)", done: true },
+    { n: 3, label: "Data source adapters + ingestion job", done: true },
+    { n: 4, label: "Search + results UI, grocery-list mode", done: true },
     { n: 5, label: "Auth, profiles, saved lists", done: false },
     { n: 6, label: "Stripe subscriptions + free-tier gating", done: false },
     { n: 7, label: "Admin panel", done: false },
@@ -23,7 +23,7 @@ export default function Home() {
     <main className="mx-auto flex min-h-screen w-full max-w-2xl flex-col justify-center gap-8 px-6 py-16">
       <header className="flex flex-col gap-3">
         <span className="inline-flex w-fit items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
-          Phase 1 · Scaffold complete
+          Phase 4 · Search is live
         </span>
         <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-4xl">
           grocery-app
@@ -33,6 +33,22 @@ export default function Home() {
           items. First market: Ontario, Canada ({publicEnv.defaultCurrency}).
         </p>
       </header>
+
+      {/* The main calls to action */}
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <Link
+          href="/search"
+          className="flex-1 rounded-lg bg-emerald-600 px-4 py-3 text-center font-semibold text-white transition-colors hover:bg-emerald-700"
+        >
+          Search an item
+        </Link>
+        <Link
+          href="/list"
+          className="flex-1 rounded-lg border border-emerald-600 px-4 py-3 text-center font-semibold text-emerald-700 transition-colors hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950"
+        >
+          Price a grocery list
+        </Link>
+      </div>
 
       <section className="flex flex-col gap-3">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
