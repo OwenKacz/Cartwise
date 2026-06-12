@@ -1,4 +1,4 @@
-# grocery-app
+# Cartwise
 
 Find the cheapest groceries near you — think "GasBuddy, but for grocery items."
 

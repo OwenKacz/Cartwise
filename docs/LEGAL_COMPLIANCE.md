@@ -1,18 +1,18 @@
 ---
-title: grocery-app — Legal & Regulatory Compliance Memorandum
+title: Cartwise — Legal & Regulatory Compliance Memorandum
 created: 2026-06-08
 updated: 2026-06-08
 status: draft for legal review
 jurisdiction: Ontario, Canada (primary); US / Quebec / EU flagged for expansion
 prepared_for: External legal counsel review
 tags:
-  - project/grocery-app
+  - project/cartwise
   - legal
   - compliance
   - risk
 ---
 
-# grocery-app — Legal & Regulatory Compliance Memorandum
+# Cartwise — Legal & Regulatory Compliance Memorandum
 
 **Document status:** Draft for review by qualified legal counsel
 **Prepared:** 2026-06-08

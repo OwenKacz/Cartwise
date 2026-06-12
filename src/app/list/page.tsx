@@ -19,7 +19,7 @@ import { LocationFields } from "@/components/LocationFields";
 import { ModeTabs } from "@/components/ModeTabs";
 import { PriceHitCard } from "@/components/PriceHitCard";
 
-export const metadata: Metadata = { title: "Grocery list — grocery-app" };
+export const metadata: Metadata = { title: "Grocery list — Cartwise" };
 
 // Prices change all the time — always render fresh, never cache this page.
 export const dynamic = "force-dynamic";

@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "grocery-app — find the cheapest groceries near you",
+  title: "Cartwise — find the cheapest groceries near you",
   description:
     "Compare grocery prices across nearby stores and find the cheapest option for every item on your list.",
 };

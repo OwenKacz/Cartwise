@@ -10,7 +10,7 @@ import { redirect } from "next/navigation";
 import { signOut, updateProfile } from "@/lib/auth/actions";
 import { getCurrentProfile, getCurrentUser } from "@/lib/auth/user";
 
-export const metadata: Metadata = { title: "Account — grocery-app" };
+export const metadata: Metadata = { title: "Account — Cartwise" };
 export const dynamic = "force-dynamic";
 
 export default async function AccountPage({

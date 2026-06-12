@@ -11,7 +11,7 @@ import { redirect } from "next/navigation";
 import { signIn, signUp } from "@/lib/auth/actions";
 import { getCurrentUser } from "@/lib/auth/user";
 
-export const metadata: Metadata = { title: "Log in — grocery-app" };
+export const metadata: Metadata = { title: "Log in — Cartwise" };
 export const dynamic = "force-dynamic";
 
 export default async function LoginPage({
@@ -34,7 +34,7 @@ export default async function LoginPage({
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
           {isSignup
             ? "Save grocery lists and set your home postal code."
-            : "Log in to your grocery-app account."}
+            : "Log in to your Cartwise account."}
         </p>
       </header>
 

@@ -1,21 +1,21 @@
 ---
-title: grocery-app — Project Log
+title: Cartwise — Project Log
 created: 2026-06-02
 updated: 2026-06-10
 status: in-progress
 phase: 6 of 8
 tags:
-  - project/grocery-app
+  - project/cartwise
   - nextjs
   - supabase
   - stripe
   - webapp
 ---
 
-# grocery-app — Project Log
+# Cartwise — Project Log
 
 > [!abstract] What this is
-> A running log of the **grocery-app** build: a mobile-friendly web app (installable as a PWA) that finds the cheapest groceries near you — "GasBuddy, but for grocery items." First market: **Ontario, Canada (CAD)**. Business model: **$5.99 CAD/month** subscription with a limited free tier.
+> A running log of the **Cartwise** build: a mobile-friendly web app (installable as a PWA) that finds the cheapest groceries near you — "GasBuddy, but for grocery items." First market: **Ontario, Canada (CAD)**. Business model: **$5.99 CAD/month** subscription with a limited free tier.
 >
 > This note captures every decision and everything built so far so the work is never lost. Updated as we complete each phase.
 
@@ -25,7 +25,7 @@ tags:
 
 | | |
 |---|---|
-| **Project folder** | `C:\Users\owenk\grocery-app` (its own git repo, branch `main`) |
+| **Project folder** | `C:\Users\owenk\grocery-app` (its own git repo, branch `main` — folder name predates the Cartwise rebrand) |
 | **Current phase** | Phase 5 (auth) built & browser-tested 2026-06-10 — awaiting sign-off, then Phase 6 (Stripe) |
 | **Live data yet?** | No — runs on mock/seed data by design until a real source is connected |
 | **Accounts created** | Supabase project **"Grocery Website"** |
@@ -65,7 +65,7 @@ Core user flow:
 
 ## Key decisions made (and why)
 
-- [x] **Project name** = `grocery-app` (placeholder, can rebrand later).
+- [x] **Project name** = **Cartwise** (rebranded from the `grocery-app` placeholder on 2026-06-12; local folder + GitHub repo still use the old name).
 - [x] **Geocoding defaults to a free mock** — the app runs with **zero paid keys**. A real provider (Google/Mapbox) is added via env var only when wanted.
 - [x] **Search reads our own cached database, not store websites live** — faster, cheaper, resilient if a source goes down. A scheduled job refreshes prices.
 - [x] **Pluggable data-source adapter layer is the core architecture** — no store is ever hard-coded. Adding a store = adding ONE registry entry.

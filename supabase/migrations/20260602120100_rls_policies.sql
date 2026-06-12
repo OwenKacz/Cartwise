@@ -1,5 +1,5 @@
 -- =============================================================================
--- grocery-app — Phase 2: Row-Level Security (RLS) + access rules
+-- Cartwise — Phase 2: Row-Level Security (RLS) + access rules
 -- -----------------------------------------------------------------------------
 -- RLS is Postgres's way of saying "which ROWS can this user see/change". We turn
 -- it on for every table and then add explicit policies. With RLS on and NO

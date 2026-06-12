@@ -1,5 +1,5 @@
 -- =============================================================================
--- grocery-app — Phase 2: Initial database schema
+-- Cartwise — Phase 2: Initial database schema
 -- -----------------------------------------------------------------------------
 -- This migration creates every table the app needs. Security rules (Row-Level
 -- Security) live in the NEXT migration file (20260602120100_rls_policies.sql) so

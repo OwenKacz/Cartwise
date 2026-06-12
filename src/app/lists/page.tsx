@@ -11,7 +11,7 @@ import { deleteList } from "@/lib/lists/actions";
 import { getCurrentUser } from "@/lib/auth/user";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
-export const metadata: Metadata = { title: "My lists — grocery-app" };
+export const metadata: Metadata = { title: "My lists — Cartwise" };
 export const dynamic = "force-dynamic";
 
 export default async function ListsPage({

@@ -1,5 +1,5 @@
 -- =============================================================================
--- grocery-app — Phase 3: register a CSV data source (demo of the adapter layer)
+-- Cartwise — Phase 3: register a CSV data source (demo of the adapter layer)
 -- -----------------------------------------------------------------------------
 -- This adds ONE row to `data_sources` so the ingestion job has a CSV source to
 -- pull from. It points at `data/seed/sample-prices.csv` in the project.

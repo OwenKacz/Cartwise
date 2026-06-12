@@ -20,7 +20,7 @@ export async function SiteHeader() {
             href="/"
             className="font-bold tracking-tight text-zinc-900 dark:text-zinc-50"
           >
-            grocery-app
+            Cartwise
           </Link>
           <Link
             href="/search"

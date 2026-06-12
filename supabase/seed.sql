@@ -1,5 +1,5 @@
 -- =============================================================================
--- grocery-app — Phase 2: Seed data (sample stores so the app has something to
+-- Cartwise — Phase 2: Seed data (sample stores so the app has something to
 -- show before any real data source is connected).
 -- -----------------------------------------------------------------------------
 -- Run this AFTER both migration files. It is re-runnable (safe to run twice):
